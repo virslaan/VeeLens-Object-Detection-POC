@@ -13,10 +13,10 @@
         const video = document.getElementById('webcam');
         const liveView = document.getElementById('canvas');
         const context = liveView.getContext('2d');
-        
+
         // Check if webcam access is supported.
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({video: true}).then(stream => {
+            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
                 video.srcObject = stream;
                 video.addEventListener('loadeddata', predictWebcam);
             });
