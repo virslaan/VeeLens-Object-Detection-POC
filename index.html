@@ -6,98 +6,44 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: #ffa500;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             height: 100vh;
             margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: white;
+            text-shadow: 2px 2px 4px #000000;
+        }
+        #vipul-rules {
+            color: white;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            text-shadow: 2px 2px 4px #000000;
         }
         #webcam-container {
             position: relative;
             height: 480px;
             width: 640px;
         }
-        #webcam {
-            position: absolute;
-            height: 480px;
-            width: 640px;
-            z-index: 1;
-        }
-        #canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 480px;
-            width: 640px;
-            z-index: 2;
-            background: repeating-linear-gradient(0deg, transparent, transparent 39px, #000 39px, #000 40px),
-                        repeating-linear-gradient(90deg, transparent, transparent 39px, #000 39px, #000 40px);
-            background-color: transparent;
-        }
-        #prediction-list {
-            position: absolute;
-            top: 500px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
+        /*... Other styles ...*/
     </style>
 </head>
 <body>
+    <h1>VeeLens: Object Detection with TensorFlow.js</h1>
+    <div id="vipul-rules">Vipul rules!</div>
     <div id="webcam-container">
-        <video autoplay id="webcam"></video>
-        <canvas id="canvas"></canvas>
+        <!--... Video and canvas elements ...-->
     </div>
     <div id="prediction-list"></div>
-
-    <script type="text/javascript">
-        const video = document.getElementById('webcam');
-        const liveView = document.getElementById('canvas');
-        const context = liveView.getContext('2d');
-        const predictionList = document.getElementById('prediction-list');
-
-        // Check if webcam access is supported.
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-                video.srcObject = stream;
-                video.addEventListener('loadeddata', predictWebcam);
-            });
-        }
-
-        // Load the model.
-        let model = undefined;
-        cocoSsd.load().then(loadedModel => {
-            model = loadedModel;
-        });
-
-        // Predict the frame from webcam.
-        function predictWebcam() {
-            model.detect(video).then(predictions => {
-                // Clear the canvas.
-                context.clearRect(0, 0, liveView.width, liveView.height);
-
-                // Draw predictions.
-                for (let n = 0; n < predictions.length; n++) {
-                    if (predictions[n].score > 0.8) {
-                        context.beginPath();
-                        context.rect(predictions[n].bbox[0], predictions[n].bbox[1], predictions[n].bbox[2], predictions[n].bbox[3]);
-                        context.lineWidth = 2;
-                        context.strokeStyle = 'red';
-                        context.fillStyle = 'red';
-                        context.stroke();
-                        context.fillText(predictions[n].class + ' - ' + Math.round(parseFloat(predictions[n].score) * 100) + '%', predictions[n].bbox[0], predictions[n].bbox[1] > 10 ? predictions[n].bbox[1] - 5 : 10);
-                        
-                        // Log detected object to prediction list.
-                        const predictionElement = document.createElement('div');
-                        predictionElement.textContent = predictions[n].class + ' - ' + Math.round(parseFloat(predictions[n].score) * 100) + '%';
-                        predictionList.appendChild(predictionElement);
-                    }
-                }
-
-                // Call this function again to keep predicting when the browser is ready.
-                window.requestAnimationFrame(predictWebcam);
-            });
-        }
-    </script>
+    <div style="position: fixed; bottom: 0; right: 0; width: 200px; height: 113px; z-index: 100;">
+        <iframe width="200" height="113" src="https://www.youtube.com/embed/atkAOjx7kh8?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+    <!--... Script ...-->
 </body>
 </html>
