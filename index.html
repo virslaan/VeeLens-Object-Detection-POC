@@ -4,44 +4,57 @@
     <title>VeeLens: Object Detection with TensorFlow.js</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
         #webcam-container {
             position: relative;
+            height: 480px;
+            width: 640px;
         }
-        .grid {
+        #webcam {
+            position: absolute;
+            height: 480px;
+            width: 640px;
+            z-index: 1;
+        }
+        #canvas {
             position: absolute;
             top: 0;
             left: 0;
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            grid-template-rows: repeat(10, 1fr);
-            height: 100%;
-            width: 100%;
+            height: 480px;
+            width: 640px;
+            z-index: 2;
+            background: repeating-linear-gradient(0deg, transparent, transparent 39px, #000 39px, #000 40px),
+                        repeating-linear-gradient(90deg, transparent, transparent 39px, #000 39px, #000 40px);
+            background-color: transparent;
         }
-        .grid div {
-            border: 1px dashed #343a40;
+        #prediction-list {
+            position: absolute;
+            top: 500px;
+            max-height: 200px;
+            overflow-y: auto;
         }
     </style>
 </head>
-<body class="container py-5">
-    <h1 class="text-center mb-5">VeeLens: Object Detection with TensorFlow.js</h1>
-    <div id="webcam-container" class="mx-auto">
-        <video autoplay height="480" width="640" id="webcam" class="mx-auto d-block"></video>
-        <div class="grid">
-            <div></div>
-            <!-- Repeat this div as many times as you want grid cells -->
-        </div>
+<body>
+    <div id="webcam-container">
+        <video autoplay id="webcam"></video>
         <canvas id="canvas"></canvas>
     </div>
+    <div id="prediction-list"></div>
 
     <script type="text/javascript">
         const video = document.getElementById('webcam');
         const liveView = document.getElementById('canvas');
         const context = liveView.getContext('2d');
+        const predictionList = document.getElementById('prediction-list');
 
         // Check if webcam access is supported.
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -73,6 +86,11 @@
                         context.fillStyle = 'red';
                         context.stroke();
                         context.fillText(predictions[n].class + ' - ' + Math.round(parseFloat(predictions[n].score) * 100) + '%', predictions[n].bbox[0], predictions[n].bbox[1] > 10 ? predictions[n].bbox[1] - 5 : 10);
+                        
+                        // Log detected object to prediction list.
+                        const predictionElement = document.createElement('div');
+                        predictionElement.textContent = predictions[n].class + ' - ' + Math.round(parseFloat(predictions[n].score) * 100) + '%';
+                        predictionList.appendChild(predictionElement);
                     }
                 }
 
