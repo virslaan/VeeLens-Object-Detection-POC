@@ -4,10 +4,39 @@
     <title>VeeLens: Object Detection with TensorFlow.js</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        #webcam-container {
+            position: relative;
+        }
+        .grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            height: 100%;
+            width: 100%;
+        }
+        .grid div {
+            border: 1px dashed #343a40;
+        }
+    </style>
 </head>
-<body>
-    <video autoplay height="480" width="640" id="webcam"></video>
-    <canvas id="canvas"></canvas>
+<body class="container py-5">
+    <h1 class="text-center mb-5">VeeLens: Object Detection with TensorFlow.js</h1>
+    <div id="webcam-container" class="mx-auto">
+        <video autoplay height="480" width="640" id="webcam" class="mx-auto d-block"></video>
+        <div class="grid">
+            <div></div>
+            <!-- Repeat this div as many times as you want grid cells -->
+        </div>
+        <canvas id="canvas"></canvas>
+    </div>
 
     <script type="text/javascript">
         const video = document.getElementById('webcam');
