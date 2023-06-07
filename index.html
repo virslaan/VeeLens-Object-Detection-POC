@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Object Detection with TensorFlow.js</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+</head>
+<body>
+    <video autoplay height="480" width="640" id="webcam"></video>
+    <canvas id="canvas"></canvas>
+
+    <script type="text/javascript">
+        const video = document.getElementById('webcam');
+        const liveView = document.getElementById('canvas');
+        const context = liveView.getContext('2d');
+        
+        // Check if webcam access is supported.
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({video: true}).then(stream => {
+                video.srcObject = stream;
+                video.addEventListener('loadeddata', predictWebcam);
+            });
+        }
+
+        // Load the model.
+        let model = undefined;
+        cocoSsd.load().then(loadedModel => {
+            model = loadedModel;
+        });
+
+        // Predict the frame from webcam.
+        function predictWebcam() {
+            model.detect(video).then(predictions => {
+                // Clear the canvas.
+                context.clearRect(0, 0, liveView.width, liveView.height);
+
+                // Draw predictions.
+                for (let n = 0; n < predictions.length; n++) {
+                    if (predictions[n].score > 0.8) {
+                        context.beginPath();
+                        context.rect(predictions[n].bbox[0], predictions[n].bbox[1], predictions[n].bbox[2], predictions[n].bbox[3]);
+                        context.lineWidth = 2;
+                        context.strokeStyle = 'red';
+                        context.fillStyle = 'red';
+                        context.stroke();
+                        context.fillText(predictions[n].class + ' - ' + Math.round(parseFloat(predictions[n].score) * 100) + '%', predictions[n].bbox[0], predictions[n].bbox[1] > 10 ? predictions[n].bbox[1] - 5 : 10);
+                    }
+                }
+
+                // Call this function again to keep predicting when the browser is ready.
+                window.requestAnimationFrame(predictWebcam);
+            });
+        }
+    </script>
+</body>
+</html>
