@@ -6,17 +6,19 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
     <style>
         body {
-            background-color: #ffa500;
             display: flex;
             flex-direction: column;
             align-items: center;
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            overflow: hidden;
+            position: relative;
         }
         h1 {
             color: white;
             text-shadow: 2px 2px 4px #000000;
+            z-index: 1;
         }
         #vipul-rules {
             color: white;
@@ -25,13 +27,39 @@
             right: 10px;
             font-size: 20px;
             text-shadow: 2px 2px 4px #000000;
+            z-index: 1;
         }
         #webcam-container {
             position: relative;
             height: 480px;
             width: 640px;
+            z-index: 1;
         }
         /*... Other styles ...*/
+
+        /* Background Video */
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .video-background video {
+            min-width: 100%;
+            min-height: 100%;
+        }
+        .video-background:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 100%);
+        }
     </style>
 </head>
 <body>
@@ -41,9 +69,30 @@
         <!--... Video and canvas elements ...-->
     </div>
     <div id="prediction-list"></div>
-    <div style="position: fixed; bottom: 0; right: 0; width: 200px; height: 113px; z-index: 100;">
-        <iframe width="200" height="113" src="https://www.youtube.com/embed/atkAOjx7kh8?autoplay=1&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    
+    <div class="video-background">
+        <iframe id="background-video" width="560" height="315" src="https://www.youtube.com/embed/d27gTrPPAyk?controls=0&showinfo=0&rel=0&autoplay=1&loop=1&playlist=d27gTrPPAyk&mute=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
+    
+    <button id="play-pause-button" style="z-index: 1;">Pause Background Video</button>
+
     <!--... Script ...-->
+
+    <script>
+        // Video play/pause button.
+        const playPauseButton = document.getElementById('play-pause-button');
+        const backgroundVideo = document.getElementById('background-video');
+
+        playPauseButton.addEventListener('click', function() {
+            const url = backgroundVideo.src;
+            if (url.indexOf('autoplay=1') !== -1) {
+                backgroundVideo.src = url.replace('autoplay=1', 'autoplay=0');
+                playPauseButton.innerText = 'Play Background Video';
+            } else {
+                backgroundVideo.src = url.replace('autoplay=0', 'autoplay=1');
+                playPauseButton.innerText = 'Pause Background Video';
+            }
+        });
+    </script>
 </body>
 </html>
