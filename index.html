@@ -35,9 +35,13 @@
             width: 640px;
             z-index: 2;
         }
-        /*... Other styles ...*/
-
-        /* Background Video */
+        #prediction-list {
+            position: absolute;
+            top: 500px;
+            z-index: 2;
+            color: white;
+            text-shadow: 2px 2px 4px #000000;
+        }
         .video-background {
             position: absolute;
             top: 0;
@@ -67,21 +71,64 @@
     <h1>VeeLens: Object Detection with TensorFlow.js</h1>
     <div id="vipul-rules">Vipul rules!</div>
     <div id="webcam-container">
-        <!--... Video and canvas elements ...-->
+        <video autoplay height="480" width="640" id="webcam"></video>
+        <canvas id="canvas" height="480" width="640"></canvas>
     </div>
     <div id="prediction-list"></div>
-    
-    <div class="video-background" id="video-background">
-        <!-- YouTube video player will be created dynamically -->
-    </div>
-    
+
+    <div class="video-background" id="video-background"></div>
+
     <button id="play-pause-button" style="z-index: 2;">Pause Background Video</button>
 
-    <!--... Script ...-->
+    <script type="text/javascript">
+        const video = document.getElementById('webcam');
+        const liveView = document.getElementById('canvas');
+        const context = liveView.getContext('2d');
+        const predictionList = document.getElementById('prediction-list');
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                video.srcObject = stream;
+                video.addEventListener('loadeddata', predictWebcam);
+            });
+        }
+
+        let model = undefined;
+        cocoSsd.load().then(loadedModel => {
+            model = loadedModel;
+        });
+
+        function predictWebcam() {
+            model.detect(video).then(predictions => {
+                context.clearRect(0, 0, liveView.width, liveView.height);
+                for (let n = 0; n < predictions.length; n++) {
+                    if (predictions[n].score > 0.8) {
+                        context.beginPath();
+                        context.rect(predictions[n].bbox[0], predictions[n].bbox[1], predictions[n].bbox[2], predictions[n].bbox[3]);
+                        context.lineWidth = 2;
+                        context.strokeStyle = 'red';
+                        context.fillStyle = 'red';
+                        context.stroke();
+                        context.fillText(predictions[n].class + ' - ' + Math.round(parseFloat(predictions[n].score) * 100) + '%', predictions[n].bbox[0], predictions[n].bbox[1] > 10 ? predictions[n].bbox[1] - 5 : 10);
+                    }
+                }
+                window.requestAnimationFrame(predictWebcam);
+                updatePredictionList(predictions);
+            });
+        }
+
+        function updatePredictionList(predictions) {
+            predictionList.innerHTML = '';
+            predictions.forEach((prediction) => {
+                const listItem = document.createElement('div');
+                listItem.textContent = `${prediction.class}: ${Math.round(parseFloat(prediction.score) * 100)}%`;
+                predictionList.appendChild(listItem);
+            });
+        }
+    </script>
 
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        // This function gets called when the YouTube API script has loaded.
         let player;
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('video-background', {
@@ -100,9 +147,7 @@
             });
         }
 
-        // Video play/pause button.
         const playPauseButton = document.getElementById('play-pause-button');
-
         playPauseButton.addEventListener('click', function() {
             const state = player.getPlayerState();
             if (state === YT.PlayerState.PLAYING) {
